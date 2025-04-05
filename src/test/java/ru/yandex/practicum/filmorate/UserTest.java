@@ -17,8 +17,8 @@ public class UserTest {
     User user;
 
     @BeforeEach
-    public void testUser(){
-        user = new User(1L,"NewEmail@gmail.com", "Evg90", "Евгений", LocalDate.parse("1990-10-15"));
+    public void testUser() {
+        user = new User(1L, "NewEmail@gmail.com", "Evg90", "Евгений", LocalDate.parse("1990-10-15"));
     }
 
     @Test

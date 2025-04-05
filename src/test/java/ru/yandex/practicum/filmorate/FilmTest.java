@@ -17,8 +17,8 @@ public class FilmTest {
     Film film;
 
     @BeforeEach
-    public void testFilm(){
-        film = new Film(1L,"1+1", "Драма, комедия", LocalDate.parse("2011-09-23"), 112L);
+    public void testFilm() {
+        film = new Film(1L, "1+1", "Драма, комедия", LocalDate.parse("2011-09-23"), 112L);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class FilmTest {
     @Test
     public void checkTheDurationField() {
         Long durationFilm = film.getDuration();
-        film.setDuration(durationFilm-300);
+        film.setDuration(durationFilm - 300);
         assertEquals("Продолжительность фильма должна быть положительным числом", assertThrows(ValidationException.class, () -> filmController.create(film)).getMessage());
     }
 
