@@ -35,6 +35,7 @@ public class UserController {
         }
         if (users.containsKey(newUser.getId())) {
             log.debug("Пользователи из хранилища: {}", newUser);
+            validateUser(newUser);
             User oldUser = users.get(newUser.getId());
             oldUser.setEmail(newUser.getEmail());
             oldUser.setLogin(newUser.getLogin());
@@ -59,7 +60,7 @@ public class UserController {
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }
         log.debug("Проверка на заполнение поля логин {} по условию", user.getLogin());
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+        if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.error("Логин не может быть пустым и содержать пробелы");
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }

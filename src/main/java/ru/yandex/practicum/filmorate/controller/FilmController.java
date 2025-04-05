@@ -35,6 +35,7 @@ public class FilmController {
         }
         if (films.containsKey(newFilm.getId())) {
             log.debug("Фильмы из хранилища: {}", newFilm);
+            validateFilm(newFilm);
             Film oldFilm = films.get(newFilm.getId());
             oldFilm.setName(newFilm.getName());
             oldFilm.setDescription(newFilm.getDescription());
