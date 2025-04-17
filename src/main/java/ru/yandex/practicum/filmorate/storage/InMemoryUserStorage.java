@@ -48,6 +48,7 @@ public class InMemoryUserStorage implements UserStorage {
         throw new NotFoundException("Пользователь с данным id - " + newUser.getId() + " не найден");
     }
 
+    @Override
     public Collection<User> findAll() {
         return users.values();
     }
@@ -80,5 +81,15 @@ public class InMemoryUserStorage implements UserStorage {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    @Override
+    public User findUserById(Long userId) {
+        return users.get(userId);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        users.remove(userId);
     }
 }
