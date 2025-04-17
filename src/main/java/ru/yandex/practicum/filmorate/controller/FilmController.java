@@ -15,8 +15,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
+    /*// перенес
     private final Map<Long, Film> films = new HashMap<>();
 
+    // перенес
     @PostMapping
     public Film create(@RequestBody Film film) {
         validateFilm(film);
@@ -26,6 +28,7 @@ public class FilmController {
         return film;
     }
 
+    // перенес
     @PutMapping
     public Film updateFilm(@RequestBody Film newFilm) {
         log.debug("Проверка на заполнение поля id {} по условию", newFilm.getId());
@@ -54,6 +57,7 @@ public class FilmController {
         return films.values();
     }
 
+    // перенес
     private void validateFilm(Film film) {
         log.debug("Проверка на заполнение поля наименование {} по условию", film.getName());
         if (film.getName() == null || film.getName().isBlank()) {
@@ -86,6 +90,7 @@ public class FilmController {
         return duration == null || duration < 0;
     }
 
+    // перенес
     private long getNextId() {
         long currentMaxId = films.keySet()
                 .stream()
@@ -93,5 +98,5 @@ public class FilmController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
-    }
+    }*/
 }

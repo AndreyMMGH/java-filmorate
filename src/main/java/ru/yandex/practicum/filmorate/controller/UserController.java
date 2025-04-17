@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
+    /*private final Map<Long, User> users = new HashMap<>();
 
     @PostMapping
     public User createUser(@RequestBody User user) {
@@ -81,5 +81,5 @@ public class UserController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
-    }
+    }*/
 }

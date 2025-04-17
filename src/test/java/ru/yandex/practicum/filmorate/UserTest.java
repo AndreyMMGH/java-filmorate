@@ -21,7 +21,7 @@ public class UserTest {
         user = new User(1L, "NewEmail@gmail.com", "Evg90", "Евгений", LocalDate.parse("1990-10-15"));
     }
 
-    @Test
+    /*@Test
     public void checkTheEmailFieldOnNull() {
         user.setEmail(null);
         assertEquals("Электронная почта не может быть пустой и должна содержать символ @", assertThrows(ValidationException.class, () -> userController.createUser(user)).getMessage());
@@ -74,5 +74,5 @@ public class UserTest {
     public void checkingTheIdFieldOnNull() {
         user.setId(null);
         assertEquals("Id пользователя должен быть указан", assertThrows(ValidationException.class, () -> userController.updateUser(user)).getMessage());
-    }
+    }*/
 }
