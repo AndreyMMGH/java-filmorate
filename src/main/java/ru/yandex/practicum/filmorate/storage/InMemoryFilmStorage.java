@@ -7,9 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -41,6 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             oldFilm.setDescription(newFilm.getDescription());
             oldFilm.setReleaseDate(newFilm.getReleaseDate());
             oldFilm.setDuration(newFilm.getDuration());
+            oldFilm.setLikes((newFilm.getLikes()));
 
             log.debug("Фильм {} обновлен", oldFilm);
             return oldFilm;
@@ -49,8 +48,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         throw new NotFoundException("Фильм с данным id - " + newFilm.getId() + " не найден");
     }
 
-    public Collection<Film> findAll() {
-        return films.values();
+    @Override
+    public List<Film> findAll() {
+        return new ArrayList<>(films.values());
     }
 
     private void validateFilm(Film film) {
@@ -74,6 +74,11 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.error("Продолжительность фильма должна быть положительным числом");
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
+        log.debug("Проверка на заполнение поля Лайки {} по условию", film.getLikes());
+        if (film.getLikes() == null) {
+            log.error("Список лайков не может быть null");
+            throw new ValidationException("Список лайков не может быть null");
+        }
     }
 
     private boolean checkReleaseDate(LocalDate releaseDate) {
@@ -92,5 +97,10 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    @Override
+    public Film findFilmById(Long filmId) {
+        return films.get(filmId);
     }
 }

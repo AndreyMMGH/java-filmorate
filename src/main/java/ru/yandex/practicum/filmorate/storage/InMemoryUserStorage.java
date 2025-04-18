@@ -41,6 +41,7 @@ public class InMemoryUserStorage implements UserStorage {
             oldUser.setLogin(newUser.getLogin());
             oldUser.setName(newUser.getName());
             oldUser.setBirthday(newUser.getBirthday());
+            oldUser.setFriends(newUser.getFriends());
             log.debug("Пользователь {} обновлен", oldUser);
             return oldUser;
         }
@@ -71,6 +72,11 @@ public class InMemoryUserStorage implements UserStorage {
         if (user.getBirthday().isAfter(LocalDate.now())) {
             log.error("Дата рождения не может быть в будущем.");
             throw new ValidationException("Дата рождения не может быть в будущем.");
+        }
+        log.debug("Проверка на заполнение поля Друзья {} по условию", user.getFriends());
+        if (user.getFriends() == null) {
+            log.error("Список друзей не может быть null");
+            throw new ValidationException("Список друзей не может быть null");
         }
     }
 

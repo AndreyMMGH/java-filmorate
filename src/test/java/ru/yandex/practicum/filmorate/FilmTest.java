@@ -16,10 +16,10 @@ public class FilmTest {
     FilmController filmController = new FilmController();
     Film film;
 
-    @BeforeEach
+    /*@BeforeEach
     public void testFilm() {
         film = new Film(1L, "1+1", "Драма, комедия", LocalDate.parse("2011-09-23"), 112L);
-    }
+    }*/
 
    /* @Test
     public void checkTheNameFieldOnNull() {
