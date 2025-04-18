@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -29,6 +30,12 @@ public class FilmService {
     //пользователь может поставить лайк фильму только один раз
     public void addingLikeMovie (Long filmId, Long userId) {
         Film film = findFilmById(filmId);
+        if (film == null) {
+            throw new ValidationException("Фильм с таким id " + filmId + " не найден");
+        }
+        if (userId == null) {
+            throw new ValidationException("Пользователь с данным id: " + filmId + " не найден");
+        }
         film.getLikes().add(userId);
         filmStorage.updateFilm(film);
     }
@@ -44,6 +51,12 @@ public class FilmService {
     //удаление лайка у фильма
     public void removeLikeFromMovie(Long filmId, Long userId) {
         Film film = findFilmById(filmId);
+        if (film == null) {
+            throw new ValidationException("Фильм с таким id " + filmId + " не найден");
+        }
+        if (userId == null) {
+            throw new ValidationException("Пользователь с данным id: " + filmId + " не найден");
+        }
         film.getLikes().remove(userId);
         filmStorage.updateFilm(film);
     }
@@ -52,10 +65,15 @@ public class FilmService {
     public List<Film> outputOfPopularMovies(int count) {
         List<Film> allFilms = filmStorage.findAll();
 
+        if (allFilms == null || allFilms.isEmpty()) {
+            throw new ValidationException("Список allFilms пустой или содержит null");
+        }
+
         Collections.sort(allFilms, new Comparator<Film>() {
             @Override
             public int compare(Film film1, Film film2) {
-                return Integer.compare(film2.getLikes().size(), film1.getLikes().size());
+                return Integer.compare((film2.getLikes()!= null) ? film2.getLikes().size() : 0,
+                        (film1.getLikes()!= null) ? film1.getLikes().size() : 0);
             }
         });
 

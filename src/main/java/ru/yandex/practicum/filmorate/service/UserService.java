@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -31,6 +32,14 @@ public class UserService {
         User user = findUserById(userId);
         User userFriend = findUserById(userFriendId);
 
+        if (user == null) {
+            throw new ValidationException("Пользователь с таким id: " + userId + " не найден");
+        }
+
+        if (userFriend == null) {
+            throw new ValidationException("Друг пользователя с таким id: " + userFriendId + " не найден");
+        }
+
         user.getFriends().add(userFriendId);
         userFriend.getFriends().add(userId);
 
@@ -51,6 +60,14 @@ public class UserService {
         User user = findUserById(userId);
         User userFriend = findUserById(userFriendId);
 
+        if (user == null) {
+            throw new ValidationException("Пользователь с таким id: " + userId + " не найден");
+        }
+
+        if (userFriend == null) {
+            throw new ValidationException("Друг пользователя с таким id: " + userFriendId + " не найден");
+        }
+
         user.getFriends().remove(userFriendId);
         userFriend.getFriends().remove(userId);
 
@@ -62,6 +79,14 @@ public class UserService {
     public List<User> listMutualFriends(Long userId, Long otherUserId) {
         User user = findUserById(userId);
         User otherUser = findUserById(otherUserId);
+
+        if (user == null) {
+            throw new ValidationException("Пользователь с таким id: " + userId + " не найден");
+        }
+
+        if (otherUser == null) {
+            throw new ValidationException("Друг пользователя с таким id: " + otherUserId + " не найден");
+        }
 
         Set<Long> userFriends = user.getFriends();
         Set<Long> otherUserFriends = otherUser.getFriends();
