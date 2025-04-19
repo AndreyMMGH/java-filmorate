@@ -23,6 +23,10 @@ public class UserService {
         return userStorage.createUser(user);
     }
 
+    public User updateUser(User user) {
+        return userStorage.updateUser(user);
+    }
+
     public Collection<User> findAll() {
         return userStorage.findAll();
     }
@@ -73,6 +77,31 @@ public class UserService {
 
         userStorage.updateUser(user);
         userStorage.updateUser(userFriend);
+    }
+
+    //получение списка друзей
+    public List<User> getFriendsList(Long userId) {
+        User user = userStorage.findUserById(userId);
+
+        if (user == null) {
+            throw new ValidationException("Пользователь с таким id: " + userId + " не найден");
+        }
+
+        Set<Long> friendsOfUserIds = user.getFriends();
+
+        if (friendsOfUserIds == null || friendsOfUserIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<User> friendsOfUser = new ArrayList<>();
+        for (Long friendsOfUserId : friendsOfUserIds) {
+            User friendOfUser = userStorage.findUserById(friendsOfUserId);
+            if (friendOfUser != null) {
+                friendsOfUser.add(friendOfUser);
+            }
+        }
+
+        return friendsOfUser;
     }
 
     //вывод списка общих друзей

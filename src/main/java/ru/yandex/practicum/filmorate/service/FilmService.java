@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
@@ -24,19 +23,23 @@ public class FilmService {
         return filmStorage.create(film);
     }
 
+    public Film updateFilm(Film film) {
+        return filmStorage.updateFilm(film);
+    }
+
     public List<Film> findAll() {
         return filmStorage.findAll();
     }
 
     //добавление лайка к фильму
     //пользователь может поставить лайк фильму только один раз
-    public void addingLikeMovie (Long filmId, Long userId) {
+    public void addingLikeMovie(Long filmId, Long userId) {
         Film film = findFilmById(filmId);
         if (film == null) {
             throw new ValidationException("Фильм с таким id " + filmId + " не найден");
         }
         if (userId == null) {
-            throw new ValidationException("Пользователь с данным id: " + filmId + " не найден");
+            throw new ValidationException("Id пользователя: " + userId + " не найден");
         }
         film.getLikes().add(userId);
         filmStorage.updateFilm(film);
@@ -57,7 +60,7 @@ public class FilmService {
             throw new ValidationException("Фильм с таким id " + filmId + " не найден");
         }
         if (userId == null) {
-            throw new ValidationException("Пользователь с данным id: " + filmId + " не найден");
+            throw new ValidationException("Id пользователя: " + userId + " не найден");
         }
         film.getLikes().remove(userId);
         filmStorage.updateFilm(film);
@@ -74,12 +77,12 @@ public class FilmService {
         Collections.sort(allFilms, new Comparator<Film>() {
             @Override
             public int compare(Film film1, Film film2) {
-                return Integer.compare((film2.getLikes()!= null) ? film2.getLikes().size() : 0,
-                        (film1.getLikes()!= null) ? film1.getLikes().size() : 0);
+                return Integer.compare((film2.getLikes() != null) ? film2.getLikes().size() : 0,
+                        (film1.getLikes() != null) ? film1.getLikes().size() : 0);
             }
         });
 
-        if (allFilms.size()>count) {
+        if (allFilms.size() > count) {
             allFilms = allFilms.subList(0, count);
         }
 

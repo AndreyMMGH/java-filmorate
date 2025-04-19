@@ -13,13 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserTest {
-    UserController userController = new UserController();
+    /*UserController userController = new UserController();
     User user;
 
     @BeforeEach
     public void testUser() {
         user = new User(1L, "NewEmail@gmail.com", "Evg90", "Евгений", LocalDate.parse("1990-10-15"));
-    }
+    }*/
 
     /*@Test
     public void checkTheEmailFieldOnNull() {
