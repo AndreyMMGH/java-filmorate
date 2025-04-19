@@ -31,15 +31,13 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
-    //добавление лайка к фильму
-    //пользователь может поставить лайк фильму только один раз
     public void addingLikeMovie(Long filmId, Long userId) {
         Film film = findFilmById(filmId);
         if (film == null) {
             throw new ValidationException("Фильм с таким id " + filmId + " не найден");
         }
         if (userId == null) {
-            throw new ValidationException("Id пользователя: " + userId + " не найден");
+            throw new ValidationException("Id пользователя: не найден");
         }
         film.getLikes().add(userId);
         filmStorage.updateFilm(film);
@@ -53,20 +51,18 @@ public class FilmService {
         return film;
     }
 
-    //удаление лайка у фильма
     public void removeLikeFromMovie(Long filmId, Long userId) {
         Film film = findFilmById(filmId);
         if (film == null) {
             throw new ValidationException("Фильм с таким id " + filmId + " не найден");
         }
         if (userId == null) {
-            throw new ValidationException("Id пользователя: " + userId + " не найден");
+            throw new ValidationException("Id пользователя: не найден");
         }
         film.getLikes().remove(userId);
         filmStorage.updateFilm(film);
     }
 
-    //вывод 10 наиболее популярных фильмов по количеству лайков
     public List<Film> outputOfPopularMovies(int count) {
         List<Film> allFilms = filmStorage.findAll();
 
@@ -74,7 +70,7 @@ public class FilmService {
             throw new ValidationException("Список allFilms пустой или содержит null");
         }
 
-        Collections.sort(allFilms, new Comparator<Film>() {
+        allFilms.sort(new Comparator<Film>() {
             @Override
             public int compare(Film film1, Film film2) {
                 return Integer.compare((film2.getLikes() != null) ? film2.getLikes().size() : 0,

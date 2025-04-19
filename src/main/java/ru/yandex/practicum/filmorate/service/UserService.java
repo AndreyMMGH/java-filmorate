@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -9,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -31,8 +33,9 @@ public class UserService {
         return userStorage.findAll();
     }
 
-    //добавление в друзья
     public void addToFriends(Long userId, Long userFriendId) {
+        log.info("Процедура начала добавления друга с id {} у пользователя с id {}}", userId, userFriendId);
+
         User user = findUserById(userId);
         User userFriend = findUserById(userFriendId);
 
@@ -49,6 +52,8 @@ public class UserService {
 
         userStorage.updateUser(user);
         userStorage.updateUser(userFriend);
+
+        log.info("Процедура добавления друга с id {} у пользователя с id {} завершена}", userId, userFriendId);
     }
 
     public User findUserById(Long userId) {
@@ -59,8 +64,9 @@ public class UserService {
         return user;
     }
 
-    //удаление из друзей
     public void removeFromFriends(Long userId, Long userFriendId) {
+        log.info("Процедура начала удаления друга с id {} у пользователя с id {}}", userId, userFriendId);
+
         User user = findUserById(userId);
         User userFriend = findUserById(userFriendId);
 
@@ -77,10 +83,13 @@ public class UserService {
 
         userStorage.updateUser(user);
         userStorage.updateUser(userFriend);
+
+        log.info("Процедура удаления друга с id {} у пользователя с id {} завершена}", userId, userFriendId);
     }
 
-    //получение списка друзей
     public List<User> getFriendsList(Long userId) {
+        log.info("Процедура получения списка друзей у пользователя с id: {}}", userId);
+
         User user = userStorage.findUserById(userId);
 
         if (user == null) {
@@ -100,12 +109,16 @@ public class UserService {
                 friendsOfUser.add(friendOfUser);
             }
         }
+        log.info("Cписок друзей у пользователя с id: {} сформирован}", userId);
 
         return friendsOfUser;
+
+
     }
 
-    //вывод списка общих друзей
     public List<User> listMutualFriends(Long userId, Long otherUserId) {
+        log.info("Начата процедура получения списка общих друзей у одного пользователя с id {} и друго с id {}}", userId, otherUserId);
+
         User user = findUserById(userId);
         User otherUser = findUserById(otherUserId);
 
@@ -130,6 +143,8 @@ public class UserService {
                 mutualFriends.add(userFound);
             }
         }
+
+        log.info("Список общих друзей сформирован");
 
         return mutualFriends;
     }
