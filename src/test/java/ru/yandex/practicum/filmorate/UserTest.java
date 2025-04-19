@@ -6,22 +6,34 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserTest {
-    /*UserController userController = new UserController();
-    User user;
+
+    private UserStorage userStorage;
+    private UserService userService;
+    private UserController userController;
+
+    private User user;
 
     @BeforeEach
     public void testUser() {
-        user = new User(1L, "NewEmail@gmail.com", "Evg90", "Евгений", LocalDate.parse("1990-10-15"));
-    }*/
+        userStorage = new InMemoryUserStorage();
+        userService = new UserService(userStorage);
+        userController = new UserController(userService);
 
-    /*@Test
+        user = new User(1L, "NewEmail@gmail.com", "Evg90", "Евгений", LocalDate.parse("1990-10-15"), new HashSet<>());
+    }
+
+    @Test
     public void checkTheEmailFieldOnNull() {
         user.setEmail(null);
         assertEquals("Электронная почта не может быть пустой и должна содержать символ @", assertThrows(ValidationException.class, () -> userController.createUser(user)).getMessage());
@@ -67,12 +79,12 @@ public class UserTest {
     @Test
     public void checkingTheIdField() {
         user.setId(2L);
-        assertEquals("Пользователь с данным id - " + user.getId() + " не найден", assertThrows(NotFoundException.class, () -> userController.updateUser(user)).getMessage());
+        assertEquals("Пользователь с данным id - " + user.getId() + " не найден", assertThrows(NotFoundException.class, () -> userController.update(user)).getMessage());
     }
 
     @Test
     public void checkingTheIdFieldOnNull() {
         user.setId(null);
-        assertEquals("Id пользователя должен быть указан", assertThrows(ValidationException.class, () -> userController.updateUser(user)).getMessage());
-    }*/
+        assertEquals("Id пользователя должен быть указан", assertThrows(ValidationException.class, () -> userController.update(user)).getMessage());
+    }
 }
