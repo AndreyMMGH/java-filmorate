@@ -1,36 +1,59 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class UserService {
 
     private final UserStorage userStorage;
 
-    @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
-
     public User createUser(User user) {
+        validateUser(user);
         return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
+        validateUser(user);
         return userStorage.updateUser(user);
     }
 
     public Collection<User> findAll() {
         return userStorage.findAll();
+    }
+
+    private void validateUser(User user) {
+        log.debug("Проверка на заполнение поля электронная почта {} по условию", user.getEmail());
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+            log.error("Электронная почта не может быть пустой и должна содержать символ @");
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
+        }
+        log.debug("Проверка на заполнение поля логин {} по условию", user.getLogin());
+        if (user.getLogin() == null || user.getLogin().isBlank()) {
+            log.error("Логин не может быть пустым и содержать пробелы");
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
+        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        log.debug("Проверка на заполнение поля дата рождения {} по условию", user.getBirthday());
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            log.error("Дата рождения не может быть в будущем.");
+            throw new ValidationException("Дата рождения не может быть в будущем.");
+        }
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
+        }
     }
 
     public void addToFriends(Long userId, Long userFriendId) {
@@ -84,23 +107,17 @@ public class UserService {
         }
 
         Set<Long> friendsOfUserIds = user.getFriends();
-
         if (friendsOfUserIds == null || friendsOfUserIds.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<User> friendsOfUser = new ArrayList<>();
-        for (Long friendsOfUserId : friendsOfUserIds) {
-            User friendOfUser = userStorage.findUserById(friendsOfUserId);
-            if (friendOfUser != null) {
-                friendsOfUser.add(friendOfUser);
-            }
-        }
+        List<User> friendsOfUser = friendsOfUserIds.stream()
+                .map(userStorage::findUserById)
+                .filter(Objects::nonNull)
+                .toList();
 
         log.info("Cписок друзей у пользователя с id: {} сформирован", userId);
         return friendsOfUser;
-
-
     }
 
     public List<User> listMutualFriends(Long userId, Long otherUserId) {
@@ -123,13 +140,10 @@ public class UserService {
         Set<Long> mutualFriendsIds = new HashSet<>(userFriends);
         mutualFriendsIds.retainAll(otherUserFriends);
 
-        List<User> mutualFriends = new ArrayList<>();
-        for (Long id : mutualFriendsIds) {
-            User userFound = userStorage.findUserById(id);
-            if (userFound != null) {
-                mutualFriends.add(userFound);
-            }
-        }
+        List<User> mutualFriends = mutualFriendsIds.stream()
+                .map(userStorage::findUserById)
+                .filter(Objects::nonNull)
+                .toList();
 
         log.info("Список общих друзей сформирован");
 
