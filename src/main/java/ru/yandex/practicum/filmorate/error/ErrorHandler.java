@@ -10,21 +10,18 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    //404
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(final NotFoundException e) {
         return new ErrorResponse("Не найдено", e.getMessage());
     }
 
-    //400
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(final ValidationException e) {
         return new ErrorResponse("Неправильный, некорректный запрос", e.getMessage());
     }
 
-    //500
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
