@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 @Slf4j
@@ -41,7 +42,7 @@ public class InMemoryUserStorage implements UserStorage {
             oldUser.setLogin(newUser.getLogin());
             oldUser.setName(newUser.getName());
             oldUser.setBirthday(newUser.getBirthday());
-            oldUser.setFriends(newUser.getFriends());
+            oldUser.setFriends((newUser.getFriends()));
             log.debug("Пользователь {} обновлен", oldUser);
             return oldUser;
         }
@@ -73,10 +74,8 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("Дата рождения не может быть в будущем.");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-        log.debug("Проверка на заполнение поля Друзья {} по условию", user.getFriends());
         if (user.getFriends() == null) {
-            log.error("Список друзей не может быть null");
-            throw new ValidationException("Список друзей не может быть null");
+            user.setFriends(new HashSet<>());
         }
     }
 

@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -20,13 +22,15 @@ public class FilmTest {
     private FilmStorage filmStorage;
     private FilmService filmService;
     private FilmController filmController;
+    private UserStorage userStorage;
     private Film film;
 
     @BeforeEach
     public void testFilm() {
 
         filmStorage = new InMemoryFilmStorage();
-        filmService = new FilmService(filmStorage);
+        userStorage = new InMemoryUserStorage();
+        filmService = new FilmService(filmStorage, userStorage);
         filmController = new FilmController(filmService);
         film = new Film(1L, "1+1", "Драма, комедия", LocalDate.parse("2011-09-23"), 112L, new HashSet<>());
     }

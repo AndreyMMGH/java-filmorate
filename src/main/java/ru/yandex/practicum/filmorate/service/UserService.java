@@ -34,26 +34,20 @@ public class UserService {
     }
 
     public void addToFriends(Long userId, Long userFriendId) {
-        log.info("Процедура начала добавления друга с id {} у пользователя с id {}}", userId, userFriendId);
-
+        log.info("Процедура начала добавления друга с id {} у пользователя с id {}", userId, userFriendId);
         User user = findUserById(userId);
         User userFriend = findUserById(userFriendId);
 
         if (user == null) {
-            throw new ValidationException("Пользователь с таким id: " + userId + " не найден");
+            throw new NotFoundException("Пользователь с таким id: " + userId + " не найден");
         }
-
         if (userFriend == null) {
-            throw new ValidationException("Друг пользователя с таким id: " + userFriendId + " не найден");
+            throw new NotFoundException("Друг пользователя с таким id: " + userFriendId + " не найден");
         }
 
         user.getFriends().add(userFriendId);
         userFriend.getFriends().add(userId);
-
-        userStorage.updateUser(user);
-        userStorage.updateUser(userFriend);
-
-        log.info("Процедура добавления друга с id {} у пользователя с id {} завершена}", userId, userFriendId);
+        log.info("Процедура добавления друга с id {} у пользователя с id {} завершена", userId, userFriendId);
     }
 
     public User findUserById(Long userId) {
@@ -65,35 +59,28 @@ public class UserService {
     }
 
     public void removeFromFriends(Long userId, Long userFriendId) {
-        log.info("Процедура начала удаления друга с id {} у пользователя с id {}}", userId, userFriendId);
-
+        log.info("Процедура начала удаления друга с id {} у пользователя с id {}", userId, userFriendId);
         User user = findUserById(userId);
         User userFriend = findUserById(userFriendId);
 
         if (user == null) {
             throw new ValidationException("Пользователь с таким id: " + userId + " не найден");
         }
-
         if (userFriend == null) {
             throw new ValidationException("Друг пользователя с таким id: " + userFriendId + " не найден");
         }
 
         user.getFriends().remove(userFriendId);
         userFriend.getFriends().remove(userId);
-
-        userStorage.updateUser(user);
-        userStorage.updateUser(userFriend);
-
-        log.info("Процедура удаления друга с id {} у пользователя с id {} завершена}", userId, userFriendId);
+        log.info("Процедура удаления друга с id {} у пользователя с id {} завершена", userId, userFriendId);
     }
 
     public List<User> getFriendsList(Long userId) {
-        log.info("Процедура получения списка друзей у пользователя с id: {}}", userId);
-
+        log.info("Процедура получения списка друзей у пользователя с id: {}", userId);
         User user = userStorage.findUserById(userId);
 
         if (user == null) {
-            throw new ValidationException("Пользователь с таким id: " + userId + " не найден");
+            throw new NotFoundException("Пользователь с таким id: " + userId + " не найден");
         }
 
         Set<Long> friendsOfUserIds = user.getFriends();
@@ -109,15 +96,15 @@ public class UserService {
                 friendsOfUser.add(friendOfUser);
             }
         }
-        log.info("Cписок друзей у пользователя с id: {} сформирован}", userId);
 
+        log.info("Cписок друзей у пользователя с id: {} сформирован", userId);
         return friendsOfUser;
 
 
     }
 
     public List<User> listMutualFriends(Long userId, Long otherUserId) {
-        log.info("Начата процедура получения списка общих друзей у одного пользователя с id {} и друго с id {}}", userId, otherUserId);
+        log.info("Начата процедура получения списка общих друзей у одного пользователя с id {} и другого с id {}", userId, otherUserId);
 
         User user = findUserById(userId);
         User otherUser = findUserById(otherUserId);

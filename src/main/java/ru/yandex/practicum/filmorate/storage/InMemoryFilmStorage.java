@@ -74,10 +74,8 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.error("Продолжительность фильма должна быть положительным числом");
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
-        log.debug("Проверка на заполнение поля Лайки {} по условию", film.getLikes());
         if (film.getLikes() == null) {
-            log.error("Список лайков не может быть null");
-            throw new ValidationException("Список лайков не может быть null");
+            film.setLikes(new HashSet<>());
         }
     }
 

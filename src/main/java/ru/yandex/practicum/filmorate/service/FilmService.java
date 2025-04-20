@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 
@@ -13,10 +15,12 @@ import java.util.*;
 public class FilmService {
 
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Film createFilm(Film film) {
@@ -34,13 +38,15 @@ public class FilmService {
     public void addingLikeMovie(Long filmId, Long userId) {
         Film film = findFilmById(filmId);
         if (film == null) {
-            throw new ValidationException("Фильм с таким id " + filmId + " не найден");
+            throw new NotFoundException("Фильм с таким id " + filmId + " не найден");
         }
-        if (userId == null) {
-            throw new ValidationException("Id пользователя: не найден");
+
+        User user = userStorage.findUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с таким id " + userId + " не найден");
         }
-        film.getLikes().add(userId);
-        filmStorage.updateFilm(film);
+
+        filmStorage.findFilmById(filmId).getLikes().add(userStorage.findUserById(userId).getId());
     }
 
     public Film findFilmById(Long filmId) {
@@ -54,13 +60,15 @@ public class FilmService {
     public void removeLikeFromMovie(Long filmId, Long userId) {
         Film film = findFilmById(filmId);
         if (film == null) {
-            throw new ValidationException("Фильм с таким id " + filmId + " не найден");
+            throw new NotFoundException("Фильм с таким id " + filmId + " не найден");
         }
-        if (userId == null) {
-            throw new ValidationException("Id пользователя: не найден");
+
+        User user = userStorage.findUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с таким id " + userId + " не найден");
         }
-        film.getLikes().remove(userId);
-        filmStorage.updateFilm(film);
+
+        filmStorage.findFilmById(filmId).getLikes().remove(userStorage.findUserById(userId).getId());
     }
 
     public List<Film> outputOfPopularMovies(int count) {
