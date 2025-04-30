@@ -44,7 +44,7 @@ JOIN film_likes fl ON f.id_film = fl.id_film<br>
 JOIN users u ON fl.id_user = u.id_user<br>
 WHERE u.login = '*****';
 
-**-- Вывод записей и всех полей из таблицы Фильмы + поле по количеству лайков с группировкой и сортировкой по убыванию по определенному количеству**<br>
+**-- Вывод записей и всех полей из таблицы Фильмы + поле по количеству лайков с группировкой и сортировкой по убыванию и определенному количеству**<br>
 SELECT f.*, <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNT(fl.id_film) AS like_count<br>
 FROM films f<br>
