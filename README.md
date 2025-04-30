@@ -58,4 +58,4 @@ SELECT sf.name AS friendship_status<br>
 FROM friends f<br>
 JOIN status_friendship sf ON f.id_status_friendship = sf.id_status_friendship<br>
 WHERE f.id_user = ***<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND f.id_friend_user = *** 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND f.id_friend_user = ***** 
