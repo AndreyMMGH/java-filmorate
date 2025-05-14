@@ -65,3 +65,4 @@ CREATE TABLE IF NOT EXISTS friends (
     FOREIGN KEY (id_friend_user) REFERENCES users(id_user),
     FOREIGN KEY (id_status_friendship) REFERENCES status_friendship(id_status_friendship)
 );
+
