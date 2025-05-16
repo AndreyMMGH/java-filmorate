@@ -14,10 +14,10 @@ import java.util.Set;
 public class Film {
     private Long id;
     private String name;
-    //private String genre;
     private String description;
-    //private String rating;
     private LocalDate releaseDate;
     private Long duration;
     private Set<Long> likes = new HashSet<>();
+    private Mpa mpa;
+    private Set<Genre> genres= new HashSet<>();;
 }

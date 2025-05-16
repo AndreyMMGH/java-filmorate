@@ -29,7 +29,7 @@ public class FilmController {
         return filmService.findFilmById(id);
     }
 
-    @PostMapping
+   @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Создание фильма: {}", film);
         return filmService.createFilm(film);
