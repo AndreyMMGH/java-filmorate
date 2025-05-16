@@ -29,7 +29,7 @@ public class UserDbStorage implements UserStorage {
 
     private static final String CREATE_USER_QUERY = "INSERT INTO users (email, login, name, birthday)" +
             "VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_USER_QUERY = "UPDATE user SET email = ?, login = ?, name = ?, birthday = ? WHERE id_user = ?";
+    private static final String UPDATE_USER_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id_user = ?";
     private static final String FIND_USER_BY_ID_QUERY = "SELECT * FROM users WHERE id_user = ?";
     private static final String FIND_ALL_USERS_QUERY = "SELECT * FROM users";
     private static final String DELETE_USER = "DELETE FROM users WHERE id_user = ?";
