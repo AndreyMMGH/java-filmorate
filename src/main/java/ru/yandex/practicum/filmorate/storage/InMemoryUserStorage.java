@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+//@Primary
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -68,5 +70,17 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void deleteUser(Long userId) {
         users.remove(userId);
+    }
+
+    @Override
+    public void addToFriend(User user, User userFriend) {
+        user.getFriends().add(userFriend.getId());
+        userFriend.getFriends().add(user.getId());
+    }
+
+    @Override
+    public void removeFromFriends(Long userId, Long userFriendId) {
+        users.get(userId).getFriends().remove(userFriendId);
+        users.get(userFriendId).getFriends().remove(userId);
     }
 }
