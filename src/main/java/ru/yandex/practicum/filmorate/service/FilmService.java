@@ -2,14 +2,16 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -21,17 +23,20 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
 
-    private static final Logger logger = LoggerFactory.getLogger(FilmService.class);
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
 
     public Film createFilm(Film film) {
         validateFilm(film);
+        updateFields(film);
         return filmStorage.create(film);
     }
 
     public Film updateFilm(Film film) {
         validateFilm(film);
+        updateFields(film);
         return filmStorage.updateFilm(film);
     }
 
@@ -93,6 +98,7 @@ public class FilmService {
         if (film == null) {
             throw new NotFoundException("Фильм с данным id: " + filmId + " не найден");
         }
+        updateFields(film);
         return film;
     }
 
@@ -126,4 +132,36 @@ public class FilmService {
                 .limit(count)
                 .collect(Collectors.toList());
     }
+
+    private void updateFields(Film film) {
+        Mpa mpa = mpaStorage.findMpaById(film.getMpa().getId());
+        film.setMpa(checkMpa(mpa, film.getMpa().getId()));
+
+        Set<Genre> genres = checkGenresExist(film.getGenres());
+        film.setGenres(genres);
+    }
+
+    private Mpa checkMpa(Mpa mpa, Long mpaId) {
+        if (mpa == null) {
+            throw new NotFoundException("Рейтинг с данным id " + mpaId + " не найден");
+        }
+        return mpa;
+    }
+
+    private Set<Genre> checkGenresExist(Set<Genre> genres) {
+        if (genres == null || genres.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return genres.stream()
+                .map(genre -> {
+                    Genre existingGenre = genreStorage.findGenreById(genre.getId());
+                    if (existingGenre == null) {
+                        throw new NotFoundException("Жанр с данным id " + genre.getId() + " не найден");
+                    }
+                    return existingGenre;
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
 }

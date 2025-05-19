@@ -12,7 +12,6 @@ import java.util.*;
 
 @Component
 @Primary
-//@RequiredArgsConstructor
 @Slf4j
 public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
