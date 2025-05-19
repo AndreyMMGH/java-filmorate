@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
@@ -62,5 +63,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film findFilmById(Long filmId) {
         return films.get(filmId);
+    }
+
+    @Override
+    public void addingLikeMovie (Film film, User user) {
+        film.getLikes().add(user.getId());
+    }
+
+    @Override
+    public void removeLikeFromMovie(Long filmId, Long userId) {
+        films.get(filmId).getLikes().remove(userId);
     }
 }

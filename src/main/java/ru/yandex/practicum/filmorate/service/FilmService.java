@@ -2,7 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-//import org.springframework.beans.factory.annotation.Qualifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
 
+    private static final Logger logger = LoggerFactory.getLogger(FilmService.class);
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
@@ -73,7 +75,7 @@ public class FilmService {
     }
 
     public void addingLikeMovie(Long filmId, Long userId) {
-        Film film = findFilmById(filmId);
+        Film film = filmStorage.findFilmById(filmId);
         if (film == null) {
             throw new NotFoundException("Фильм с таким id " + filmId + " не найден");
         }
@@ -83,7 +85,7 @@ public class FilmService {
             throw new NotFoundException("Пользователь с таким id " + userId + " не найден");
         }
 
-        film.getLikes().add(user.getId());
+        filmStorage.addingLikeMovie(film, user);
     }
 
     public Film findFilmById(Long filmId) {
@@ -95,24 +97,26 @@ public class FilmService {
     }
 
     public void removeLikeFromMovie(Long filmId, Long userId) {
-        Film film = findFilmById(filmId);
+        Film film = filmStorage.findFilmById(filmId);
         if (film == null) {
             throw new NotFoundException("Фильм с таким id " + filmId + " не найден");
         }
 
         User user = userStorage.findUserById(userId);
         if (user == null) {
-            throw new NotFoundException("Пользователь с таким id " + userId + " не найден");
+            throw new ValidationException("Пользователь с таким id " + userId + " не найден");
         }
 
-        film.getLikes().add(user.getId());
+        filmStorage.removeLikeFromMovie(filmId, userId);
     }
 
+
     public List<Film> outputOfPopularMovies(int count) {
+
         List<Film> allFilms = filmStorage.findAll();
 
         if (allFilms == null || allFilms.isEmpty()) {
-            throw new ValidationException("Список allFilms пустой или содержит null");
+            throw new NotFoundException("Список allFilms пустой или содержит null");
         }
 
         return allFilms.stream()
