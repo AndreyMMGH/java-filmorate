@@ -16,9 +16,9 @@ import java.util.*;
 public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
     private static final String INSERT_USER_QUERY = "INSERT INTO users (email, login, name, birthday)" +
-                                                    "VALUES (?, ?, ?, ?)";
+            "VALUES (?, ?, ?, ?)";
     private static final String FIND_USER_BY_ID_QUERY = "SELECT u.*, (SELECT Listagg(f.id_friend_user, ',') FROM friends f WHERE f.id_user = u.id_user) AS user_friends " +
-                                                    "FROM users u WHERE u.id_user = ?";
+            "FROM users u WHERE u.id_user = ?";
     private static final String UPDATE_USER_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id_user = ?";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id_user = ?";
     private static final String FIND_ALL_USERS_QUERY = "SELECT u.*, (SELECT Listagg(f.id_friend_user, ',') FROM friends f WHERE f.id_user = u.id_user) AS user_friends FROM users u";
