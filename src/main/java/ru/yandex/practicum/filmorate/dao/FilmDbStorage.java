@@ -33,6 +33,13 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             "FROM films f";
     private static final String INSERT_FILMS_LIKES = "MERGE INTO film_likes KEY (id_film, id_user) VALUES (?, ?);";
     private static final String DELETE_FILMS_LIKES = "DELETE FROM film_likes WHERE id_film = ? AND id_user = ?";
+    private static final String FIND_POPULAR_FILMS_QUERY = "SELECT f.*, " +
+            "(SELECT COUNT(*) FROM film_likes fl WHERE fl.id_film = f.id_film) AS like_count, " +
+            "(SELECT LISTAGG(fg.id_genre, ',') FROM film_genres fg WHERE fg.id_film = f.id_film) AS genres, " +
+            "(SELECT LISTAGG(fl.id_user, ',') FROM film_likes fl WHERE fl.id_film = f.id_film) AS likes " +
+            "FROM films f " +
+            "ORDER BY like_count DESC " +
+            "LIMIT ?";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
@@ -53,7 +60,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         return film;
     }
 
-    private void updateGenres(Long filmId, Set<Long> genres) {
+    private void updateGenres(Long filmId, List<Long> genres) {
         delete(DELETE_FILM_GENRES_QUERY, filmId);
         if (genres != null && !genres.isEmpty()) {
             genres.forEach(genreId -> update(
@@ -65,13 +72,14 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         }
     }
 
-    private Set<Long> getListGenresId(Set<Genre> genres) {
+    private List<Long> getListGenresId(List<Genre> genres) {
         if (genres == null) {
             return null;
         }
         return genres.stream()
                 .map(Genre::getId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toList());
+
     }
 
     @Override
@@ -115,5 +123,10 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
                 filmId,
                 userId
         );
+    }
+
+    @Override
+    public List<Film> findPopularFilms(int count) {
+        return findMany(FIND_POPULAR_FILMS_QUERY, count);
     }
 }

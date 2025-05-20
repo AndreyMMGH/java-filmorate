@@ -8,11 +8,10 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toCollection;
 
 @Component
 public class FilmRowMapper implements RowMapper<Film> {
@@ -29,10 +28,10 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setLikes(split(likesBd));
         film.setLikes(split(likesBd));
 
-        Set<Genre> genres = split(resultSet.getString("genres"))
+        List<Genre> genres = split(resultSet.getString("genres"))
                 .stream()
                 .map(this::converToGenre)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toList());
 
         film.setGenres(genres);
 
@@ -55,8 +54,7 @@ public class FilmRowMapper implements RowMapper<Film> {
 
         return Arrays.stream(str.split(","))
                 .map(Long::parseLong)
-                .sorted()
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(toCollection(LinkedHashSet::new));
     }
 
     private Genre converToGenre(Long id) {

@@ -112,15 +112,7 @@ public class UserService {
             throw new NotFoundException("Пользователь с таким id: " + userId + " не найден");
         }
 
-        Set<Long> friendsOfUserIds = user.getFriends();
-        if (friendsOfUserIds == null || friendsOfUserIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<User> friendsOfUser = friendsOfUserIds.stream()
-                .map(userStorage::findUserById)
-                .filter(Objects::nonNull)
-                .toList();
+        List<User> friendsOfUser = userStorage.getFriendsList(userId);
 
         log.info("Cписок друзей у пользователя с id: {} сформирован", userId);
         return friendsOfUser;
@@ -140,16 +132,7 @@ public class UserService {
             throw new ValidationException("Друг пользователя с таким id: " + otherUserId + " не найден");
         }
 
-        Set<Long> userFriends = user.getFriends();
-        Set<Long> otherUserFriends = otherUser.getFriends();
-
-        Set<Long> mutualFriendsIds = new HashSet<>(userFriends);
-        mutualFriendsIds.retainAll(otherUserFriends);
-
-        List<User> mutualFriends = mutualFriendsIds.stream()
-                .map(userStorage::findUserById)
-                .filter(Objects::nonNull)
-                .toList();
+        List<User> mutualFriends = userStorage.getListMutualFriends(userId, otherUserId);
 
         log.info("Список общих друзей сформирован");
 

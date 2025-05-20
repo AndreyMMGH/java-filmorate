@@ -121,26 +121,17 @@ public class FilmService {
 
 
     public List<Film> outputOfPopularMovies(int count) {
-
-        List<Film> allFilms = filmStorage.findAll();
-
-        if (allFilms == null || allFilms.isEmpty()) {
-            throw new NotFoundException("Список allFilms пустой или содержит null");
+        if (count < 0) {
+            throw new ValidationException("Запрашиваемое количество фильмов не может быть меньше 0");
         }
-
-        return allFilms.stream()
-                .sorted((film1, film2) ->
-                        Integer.compare((film2.getLikes() != null) ? film2.getLikes().size() : 0,
-                                (film1.getLikes() != null) ? film1.getLikes().size() : 0))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.findPopularFilms(count);
     }
 
     private void updateFields(Film film) {
         Mpa mpa = mpaStorage.findMpaById(film.getMpa().getId());
         film.setMpa(checkMpa(mpa, film.getMpa().getId()));
 
-        Set<Genre> genres = checkGenresExist(film.getGenres());
+        List<Genre> genres = checkGenresExist(film.getGenres());
         film.setGenres(genres);
     }
 
@@ -151,9 +142,9 @@ public class FilmService {
         return mpa;
     }
 
-    private Set<Genre> checkGenresExist(Set<Genre> genres) {
+    private List<Genre> checkGenresExist(List<Genre> genres) {
         if (genres == null || genres.isEmpty()) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
 
         return genres.stream()
@@ -164,7 +155,6 @@ public class FilmService {
                     }
                     return existingGenre;
                 })
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toList());
     }
-
 }

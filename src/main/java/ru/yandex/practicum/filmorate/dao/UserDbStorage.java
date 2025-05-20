@@ -15,7 +15,7 @@ import java.util.*;
 @Slf4j
 public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
-    private static final String INSERT_USER_QUERY = "INSERT INTO users (email, login, name, birthday)" +
+    private static final String INSERT_USER_QUERY = "INSERT INTO users (email, login, name, birthday) " +
             "VALUES (?, ?, ?, ?)";
     private static final String FIND_USER_BY_ID_QUERY = "SELECT u.*, (SELECT Listagg(f.id_friend_user, ',') FROM friends f WHERE f.id_user = u.id_user) AS user_friends " +
             "FROM users u WHERE u.id_user = ?";
@@ -24,6 +24,11 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
     private static final String FIND_ALL_USERS_QUERY = "SELECT u.*, (SELECT Listagg(f.id_friend_user, ',') FROM friends f WHERE f.id_user = u.id_user) AS user_friends FROM users u";
     private static final String ADD_FRIEND_QUERY = "MERGE INTO friends KEY(id_user, id_friend_user) values(?, ?)";
     private static final String DELETE_FRIEND_QUERY = "DELETE FROM friends WHERE id_user = ? AND id_friend_user =?";
+    private static final String FIND_FRIENDS_BY_ID_QUERY = "SELECT u.*, (SELECT Listagg(f.id_friend_user, ',') FROM friends f WHERE f.id_user = u.id_user) AS user_friends " +
+            "FROM users u JOIN friends f ON u.id_user = f.id_friend_user WHERE f.id_user = ?";
+    private static final String FIND_MUTUAL_FRIENDS_QUERY = "SELECT u.*, (SELECT Listagg(f.id_friend_user, ',') FROM friends f WHERE f.id_user = u.id_user) AS user_friends FROM users u " +
+            "JOIN friends f1 ON u.id_user = f1.id_friend_user AND f1.id_user = ? " +
+            "JOIN friends f2 ON u.id_user = f2.id_friend_user AND f2.id_user = ?";
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper, User.class);
@@ -87,5 +92,15 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
                 userId,
                 userFriendId
         );
+    }
+
+    @Override
+    public List<User> getFriendsList(Long userId) {
+        return findMany(FIND_FRIENDS_BY_ID_QUERY, userId);
+    }
+
+    @Override
+    public List<User> getListMutualFriends(Long userId, Long otherUserId) {
+        return findMany(FIND_MUTUAL_FRIENDS_QUERY, userId, otherUserId);
     }
 }
