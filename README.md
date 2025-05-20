@@ -52,10 +52,3 @@ LEFT JOIN film_likes fl ON f.id_film = fl.id_film<br>
 GROUP BY f.id_film<br>
 ORDER BY like_count DESC<br>
 LIMIT ***;
-
-**-- Вывод статуса дружбы пользователей**<br>
-SELECT sf.name AS friendship_status<br>
-FROM friends f<br>
-JOIN status_friendship sf ON f.id_status_friendship = sf.id_status_friendship<br>
-WHERE f.id_user = ***<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND f.id_friend_user = ***** 
