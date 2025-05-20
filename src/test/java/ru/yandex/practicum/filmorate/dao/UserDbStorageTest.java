@@ -6,29 +6,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.dao.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.Set;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({UserDbStorage.class})
+@Import({UserDbStorage.class, UserRowMapper.class})
 class UserDbStorageTest {
     private final UserDbStorage userStorage;
 
     @Test
-    public void testGetUserById() {
+    public void testShouldGetUserById() {
         User user = new User();
-
         user.setEmail("User@mail.ru");
         user.setLogin("User");
         user.setName("Григорий");
@@ -43,7 +42,7 @@ class UserDbStorageTest {
     }
 
     @Test
-    public void testCreateUser() {
+    public void testShouldCreateUser() {
         User user = new User();
 
         user.setEmail("User@mail.ru");
@@ -58,7 +57,7 @@ class UserDbStorageTest {
     }
 
     @Test
-    public void testUpdateUser() {
+    public void testShouldUpdateUser() {
         User user = new User();
 
         user.setEmail("User@mail.ru");
@@ -86,7 +85,7 @@ class UserDbStorageTest {
     }
 
     @Test
-    public void testFindAll() {
+    public void testShouldFindAll() {
         User user1 = new User();
         user1.setEmail("User@mail.ru");
         user1.setLogin("User");
@@ -109,23 +108,86 @@ class UserDbStorageTest {
     }
 
     @Test
-    public void testDeleteUser() {
-        User user1 = new User();
-        user1.setEmail("User@mail.ru");
-        user1.setLogin("User");
-        user1.setName("Григорий");
-        user1.setBirthday(LocalDate.of(1998, 1, 20));
-        User newUser = userStorage.createUser(user1);
+    public void testShouldDeleteUser() {
 
-        Optional<User> beforeDelete = Optional.ofNullable(userStorage.findUserById(newUser.getId()));
-        assertThat(beforeDelete).isPresent();
+        User user = new User();
+        user.setEmail("user@mail.ru");
+        user.setLogin("user");
+        user.setName("Григорий");
+        user.setBirthday(LocalDate.of(2000, 4, 1));
+        user.setFriends(Set.of(2L, 3L));
 
-        assertDoesNotThrow(() -> userStorage.deleteUser(newUser.getId()));
+        userStorage.createUser(user);
+        Long id = user.getId();
+        userStorage.deleteUser(id);
 
-        assertThatThrownBy(() -> userStorage.findUserById(newUser.getId()))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("не найден");
+        assertNull(userStorage.findUserById(id), "Пользователь не удален");
     }
 
+    @Test
+    public void testShouldAddToFriend() {
+        User user1 = new User();
+        user1.setEmail("user@mail.ru");
+        user1.setLogin("user");
+        user1.setName("Григорий");
+        user1.setBirthday(LocalDate.of(2000, 4, 1));
+        user1.setFriends(Set.of(2L, 3L));
+
+        User user2 = new User();
+        user2.setEmail("user2@mail.ru");
+        user2.setLogin("user2");
+        user2.setName("Григорий2");
+        user2.setBirthday(LocalDate.of(1998, 3, 2));
+        user2.setFriends(Set.of(1L));
+
+        userStorage.createUser(user1);
+        userStorage.createUser(user2);
+
+        Long userId = user1.getId();
+        Long friendId = user2.getId();
+
+        userStorage.addToFriend(user1, user2);
+
+        User addedUser = userStorage.findUserById(userId);
+        User addedUser2 = userStorage.findUserById(friendId);
+
+        assertEquals(1, addedUser.getFriends().size(), "Друг должен быть 1");
+        assertEquals(0, addedUser2.getFriends().size(), "Дружба должна быть односторонней");
+    }
+
+    @Test
+    void testShouldRemoveFromFriends() {
+        User user1 = new User();
+        user1.setEmail("user@mail.ru");
+        user1.setLogin("user");
+        user1.setName("Григорий");
+        user1.setBirthday(LocalDate.of(2000, 4, 1));
+        user1.setFriends(Set.of(2L, 3L));
+
+        User user2 = new User();
+        user2.setEmail("user2@mail.ru");
+        user2.setLogin("user2");
+        user2.setName("Григорий2");
+        user2.setBirthday(LocalDate.of(1998, 3, 2));
+        user2.setFriends(Set.of(1L));
+
+
+        userStorage.createUser(user1);
+        userStorage.createUser(user2);
+
+        Long userId = user1.getId();
+        Long friendId = user2.getId();
+
+        userStorage.addToFriend(user1, user2);
+        userStorage.addToFriend(user2, user1);
+
+        userStorage.removeFromFriends(userId, friendId);
+
+        User removedUser = userStorage.findUserById(userId);
+        User removedUser2 = userStorage.findUserById(friendId);
+
+        assertEquals(0, removedUser.getFriends().size(), "друг должен быть удален");
+        assertEquals(1, removedUser2.getFriends().size(), "у друга список друзей должен остаться прежним");
+    }
 }
 

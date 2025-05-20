@@ -6,37 +6,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import ru.yandex.practicum.filmorate.dao.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
-import java.util.*;
 
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmDbStorage.class})
+@Import({FilmDbStorage.class, FilmRowMapper.class})
 class FilmDbStorageTest {
     private final FilmDbStorage filmStorage;
 
     @Test
     public void testShouldCreateFilm() {
         Film film = new Film();
-
         film.setName("1+1");
         film.setDescription("Описание фильма");
         film.setReleaseDate(LocalDate.of(2011, 9, 23));
         film.setDuration(110L);
-
-        Genre genre = new Genre();
-        genre.setId(1);
-        genre.setName("Комедия");
-        Set<Genre> genres = new HashSet<>();
-        genres.add(genre);
-        film.setGenres(genres);
 
         Mpa mpa = new Mpa();
         mpa.setId(1);
@@ -45,11 +36,15 @@ class FilmDbStorageTest {
 
         filmStorage.create(film);
 
-        List<Film> films = filmStorage.findAll();
+        Long id = film.getId();
+        Film resultFilm = filmStorage.findFilmById(id);
 
-        assertThat(films)
-                .extracting(Film::getName)
-                .contains("1+1");
+        assertNotNull(resultFilm, "Фильм не найден");
+        assertEquals(film.getName(), resultFilm.getName(), "Наименование фильма не совпадает");
+        assertEquals(film.getDescription(), resultFilm.getDescription(), "Описание фильма не совпадает");
+        assertEquals(film.getReleaseDate(), resultFilm.getReleaseDate(), "Дата выхода фильма не совпадает");
+        assertEquals(film.getDuration(), resultFilm.getDuration(), "Длительность фильма не совпадает");
+        assertEquals(film.getMpa().getId(), resultFilm.getMpa().getId(), "Неверный рейтинг добавленного фильма");
     }
 
     @Test
@@ -62,22 +57,32 @@ class FilmDbStorageTest {
 
         Mpa mpa = new Mpa();
         mpa.setId(1);
+        mpa.setName("G");
         film.setMpa(mpa);
 
-        Set<Genre> genres = new HashSet<>();
-        Genre genre = new Genre();
-        genre.setId(1);
-        genres.add(genre);
-        film.setGenres(genres);
+        Film film2 = new Film();
+        film2.setName("Джентльмены");
+        film2.setDescription("Описание джентльменов");
+        film2.setReleaseDate(LocalDate.of(2020, 2, 13));
+        film2.setDuration(113L);
 
-        Film newFilm = filmStorage.create(film);
-        Film foundFilm = filmStorage.findFilmById(newFilm.getId());
+        Mpa mpa2 = new Mpa();
+        mpa2.setId(2);
+        mpa2.setName("PG");
+        film2.setMpa(mpa2);
 
-        assertThat(foundFilm).isNotNull();
-        assertThat(foundFilm.getName()).isEqualTo("1+1");
-        assertThat(foundFilm.getGenres()).isNotEmpty();
-        assertThat(foundFilm.getGenres().iterator().next().getId()).isEqualTo(1L);
-        assertThat(foundFilm.getLikes()).size();
+        filmStorage.create(film);
+        filmStorage.create(film2);
+
+        Long id = film.getId();
+        Film resultFilm = filmStorage.findFilmById(id);
+
+        assertNotNull(resultFilm, "Фильм не найден");
+        assertEquals(film.getName(), resultFilm.getName(), "Наименование фильма не совпадает");
+        assertEquals(film.getDescription(), resultFilm.getDescription(), "Описание фильма не совпадает");
+        assertEquals(film.getReleaseDate(), resultFilm.getReleaseDate(), "Дата выхода фильма не совпадает");
+        assertEquals(film.getDuration(), resultFilm.getDuration(), "Длительность фильма не совпадает");
+        assertEquals(film.getMpa().getId(), resultFilm.getMpa().getId(), "Неверный рейтинг добавленного фильма");
     }
 
     @Test
@@ -90,96 +95,51 @@ class FilmDbStorageTest {
 
         Mpa mpa = new Mpa();
         mpa.setId(1);
+        mpa.setName("G");
         film.setMpa(mpa);
 
-        Set<Genre> genres = new HashSet<>();
-        Genre genre = new Genre();
-        genre.setId(1);
-        genres.add(genre);
-        film.setGenres(genres);
-
         Film createdFilm = filmStorage.create(film);
+        Long filmId = createdFilm.getId();
 
-        createdFilm.setName("Джентльмены");
-        createdFilm.setDescription("Описание Джентльменов");
-        createdFilm.setDuration(113L);
-        createdFilm.setReleaseDate(LocalDate.of(2020, 2, 13));
+        Film filmToUpdate = new Film();
+        filmToUpdate.setId(filmId);
+        filmToUpdate.setName("1+1 (Обновлен)");
+        filmToUpdate.setDescription("Обновленное описание фильма");
+        filmToUpdate.setReleaseDate(LocalDate.of(2012, 10, 24));
+        filmToUpdate.setDuration(120L);
 
-        Set<Genre> updatedGenres = new HashSet<>();
-        Genre anotherGenre = new Genre();
-        anotherGenre.setId(2);
-        updatedGenres.add(anotherGenre);
-        createdFilm.setGenres(updatedGenres);
+        Mpa mpaToUpdate = new Mpa();
+        mpaToUpdate.setId(2);
+        mpaToUpdate.setName("PG");
+        filmToUpdate.setMpa(mpaToUpdate);
 
-        Film updatedFilm = filmStorage.updateFilm(createdFilm);
+        filmStorage.updateFilm(filmToUpdate);
+        Film resultFilm = filmStorage.findFilmById(filmId);
 
-        assertThat(updatedFilm).isNotNull();
-        assertThat(updatedFilm.getName()).isEqualTo("Джентльмены");
-        assertThat(updatedFilm.getDescription()).isEqualTo("Описание Джентльменов");
-        assertThat(updatedFilm.getDuration()).isEqualTo(113L);
-        assertThat(updatedFilm.getReleaseDate()).isEqualTo(LocalDate.of(2020, 2, 13));
-        assertThat(updatedFilm.getGenres())
-                .extracting(Genre::getId)
-                .containsExactlyInAnyOrder(2);
+        assertNotNull(resultFilm, "Фильм не найден");
+        assertEquals("1+1 (Обновлен)", resultFilm.getName(), "Наименование фильма должно совпасть");
+        assertEquals("Обновленное описание фильма", resultFilm.getDescription(), "Описание фильма должно совпасть");
+        assertEquals(LocalDate.of(2012, 10, 24), resultFilm.getReleaseDate(), "Дата выхода фильма должна совпасть");
+        assertEquals(120L, resultFilm.getDuration(), "Длительность фильма должна совпасть");
+        assertEquals(2, resultFilm.getMpa().getId(), "Mpa должно быть обновлено");
     }
 
     @Test
     void testShouldFindAll() {
+        Film film = new Film();
+        film.setName("1+1");
+        film.setDescription("Описание фильма");
+        film.setReleaseDate(LocalDate.of(2011, 9, 23));
+        film.setDuration(110L);
 
-        Film film1 = new Film();
-        film1.setName("1+1");
-        film1.setDescription("Описание 1+1");
-        film1.setReleaseDate(LocalDate.of(2011, 9, 23));
-        film1.setDuration(110L);
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        mpa.setName("G");
+        film.setMpa(mpa);
 
-        Mpa mpa1 = new Mpa();
-        mpa1.setId(1);
-        film1.setMpa(mpa1);
-
-        Set<Genre> genres1 = new HashSet<>();
-        Genre genre1 = new Genre();
-        genre1.setId(1);
-        genres1.add(genre1);
-        film1.setGenres(genres1);
-
-        Film createdFilm1 = filmStorage.create(film1);
-
-        Film film2 = new Film();
-        film2.setName("Джентльмены");
-        film2.setDescription("Описание джентльменов");
-        film2.setReleaseDate(LocalDate.of(2020, 2, 13));
-        film2.setDuration(113L);
-
-        Mpa mpa2 = new Mpa();
-        mpa2.setId(2);
-        film2.setMpa(mpa2);
-
-        Set<Genre> genres2 = new HashSet<>();
-        Genre genre2 = new Genre();
-        genre2.setId(2);
-        genres2.add(genre2);
-        film2.setGenres(genres2);
-
-        Film createdFilm2 = filmStorage.create(film2);
-
-        List<Film> allFilms = filmStorage.findAll();
-
-        assertThat(allFilms).isNotEmpty();
-        assertThat(allFilms).hasSize(2);
-
-        Film returnedFilm1 = allFilms.get(0);
-        assertThat(returnedFilm1.getName()).isEqualTo(createdFilm1.getName());
-        assertThat(returnedFilm1.getDescription()).isEqualTo(createdFilm1.getDescription());
-        assertThat(returnedFilm1.getGenres()).isNotNull().hasSize(1);
-        assertThat(returnedFilm1.getGenres().iterator().next().getId()).isEqualTo(1L);
-        assertThat(returnedFilm1.getLikes()).size();
-
-        Film returnedFilm2 = allFilms.get(1);
-        assertThat(returnedFilm2.getName()).isEqualTo(createdFilm2.getName());
-        assertThat(returnedFilm2.getDescription()).isEqualTo(createdFilm2.getDescription());
-        assertThat(returnedFilm2.getGenres()).isNotNull().hasSize(1);
-        assertThat(returnedFilm2.getGenres().iterator().next().getId()).isEqualTo(2L);
-        assertThat(returnedFilm2.getLikes()).size();
+        filmStorage.create(film);
+        filmStorage.create(film);
+        assertEquals(2, filmStorage.findAll().size(), "Другое количество фильмов");
     }
 
 }

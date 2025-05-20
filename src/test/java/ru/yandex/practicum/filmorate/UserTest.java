@@ -78,12 +78,12 @@ public class UserTest {
     @Test
     public void checkingTheIdField() {
         user.setId(2L);
-        assertEquals("Пользователь с данным id - " + user.getId() + " не найден", assertThrows(NotFoundException.class, () -> userController.update(user)).getMessage());
+        assertEquals("Пользователь с id " + user.getId() + " не найден.", assertThrows(NotFoundException.class, () -> userController.update(user)).getMessage());
     }
 
     @Test
     public void checkingTheIdFieldOnNull() {
         user.setId(null);
-        assertEquals("Id пользователя должен быть указан", assertThrows(ValidationException.class, () -> userController.update(user)).getMessage());
+        assertEquals("Пользователь с id null не найден.", assertThrows(NotFoundException.class, () -> userController.update(user)).getMessage());
     }
 }
