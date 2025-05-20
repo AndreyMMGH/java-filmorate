@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
+@EqualsAndHashCode(of = "id")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
