@@ -35,6 +35,9 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
+        if (film.getId() == null || filmStorage.findFilmById(film.getId()) == null) {
+            throw new NotFoundException("Фильм с данным id - " + film.getId() + " не найден");
+        }
         validateFilm(film);
         updateFields(film);
         return filmStorage.updateFilm(film);
