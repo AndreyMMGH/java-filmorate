@@ -25,12 +25,20 @@ public class UserService {
 
     public User updateUser(User user) {
         validateUser(user);
+
+        User existingUser = userStorage.findUserById(user.getId());
+        if (existingUser == null) {
+            log.warn("Попытка обновить несуществующего пользователя с id: {}", user.getId());
+            throw new NotFoundException("Пользователь с id " + user.getId() + " не найден.");
+        }
+
         return userStorage.updateUser(user);
     }
 
     public Collection<User> findAll() {
         return userStorage.findAll();
     }
+
 
     private void validateUser(User user) {
         log.debug("Проверка на заполнение поля электронная почта {} по условию", user.getEmail());
@@ -58,8 +66,8 @@ public class UserService {
 
     public void addToFriends(Long userId, Long userFriendId) {
         log.info("Процедура начала добавления друга с id {} у пользователя с id {}", userId, userFriendId);
-        User user = findUserById(userId);
-        User userFriend = findUserById(userFriendId);
+        User user = userStorage.findUserById(userId);
+        User userFriend = userStorage.findUserById(userFriendId);
 
         if (user == null) {
             throw new NotFoundException("Пользователь с таким id: " + userId + " не найден");
@@ -68,8 +76,7 @@ public class UserService {
             throw new NotFoundException("Друг пользователя с таким id: " + userFriendId + " не найден");
         }
 
-        user.getFriends().add(userFriendId);
-        userFriend.getFriends().add(userId);
+        userStorage.addToFriend(user, userFriend);
         log.info("Процедура добавления друга с id {} у пользователя с id {} завершена", userId, userFriendId);
     }
 
@@ -83,18 +90,17 @@ public class UserService {
 
     public void removeFromFriends(Long userId, Long userFriendId) {
         log.info("Процедура начала удаления друга с id {} у пользователя с id {}", userId, userFriendId);
-        User user = findUserById(userId);
-        User userFriend = findUserById(userFriendId);
+        User user = userStorage.findUserById(userId);
+        User userFriend = userStorage.findUserById(userFriendId);
 
         if (user == null) {
-            throw new ValidationException("Пользователь с таким id: " + userId + " не найден");
+            throw new NotFoundException("Пользователь с таким id: " + userId + " не найден");
         }
         if (userFriend == null) {
-            throw new ValidationException("Друг пользователя с таким id: " + userFriendId + " не найден");
+            throw new NotFoundException("Друг пользователя с таким id: " + userFriendId + " не найден");
         }
 
-        user.getFriends().remove(userFriendId);
-        userFriend.getFriends().remove(userId);
+        userStorage.removeFromFriends(userId, userFriendId);
         log.info("Процедура удаления друга с id {} у пользователя с id {} завершена", userId, userFriendId);
     }
 
@@ -106,15 +112,7 @@ public class UserService {
             throw new NotFoundException("Пользователь с таким id: " + userId + " не найден");
         }
 
-        Set<Long> friendsOfUserIds = user.getFriends();
-        if (friendsOfUserIds == null || friendsOfUserIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<User> friendsOfUser = friendsOfUserIds.stream()
-                .map(userStorage::findUserById)
-                .filter(Objects::nonNull)
-                .toList();
+        List<User> friendsOfUser = userStorage.getFriendsList(userId);
 
         log.info("Cписок друзей у пользователя с id: {} сформирован", userId);
         return friendsOfUser;
@@ -134,16 +132,7 @@ public class UserService {
             throw new ValidationException("Друг пользователя с таким id: " + otherUserId + " не найден");
         }
 
-        Set<Long> userFriends = user.getFriends();
-        Set<Long> otherUserFriends = otherUser.getFriends();
-
-        Set<Long> mutualFriendsIds = new HashSet<>(userFriends);
-        mutualFriendsIds.retainAll(otherUserFriends);
-
-        List<User> mutualFriends = mutualFriendsIds.stream()
-                .map(userStorage::findUserById)
-                .filter(Objects::nonNull)
-                .toList();
+        List<User> mutualFriends = userStorage.getListMutualFriends(userId, otherUserId);
 
         log.info("Список общих друзей сформирован");
 
