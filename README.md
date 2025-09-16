@@ -1,54 +1,51 @@
-# java-filmorate
-Template repository for Filmorate project.
+**Filmorate**
+
+📌 **Описание проекта**  
+**Filmorate** — сервис управления пользовательскими предпочтениями в области кино. Пользователи могут отмечать лайками понравившиеся картины, добавлять друзей и находить самые популярные фильмы.  
+
+**Схема базы данных:**  
 ![Схема базы данных.](images/database.png)
 
-**-- Вывод всех полей и записей из таблицы фильмы**<br>
-SELECT *<br>
-FROM films;
+📂 **Архитектура**  
+&nbsp;&nbsp;●&nbsp;**Storage-уровень**: реализация через **JdbcTemplate**, обобщённый базовый класс BaseDbStorage<T> для типовых операций  
+&nbsp;&nbsp;&nbsp;(insert, update, delete, findOne, findMany).  
+&nbsp;&nbsp;●&nbsp;**DbStorage-классы**: отдельные **DAO** для пользователей, фильмов, жанров и рейтингов.  
+&nbsp;&nbsp;●&nbsp;**Сервис-уровень**: бизнес-логика, валидация данных, обработка ошибок (ValidationException, NotFoundException).  
+&nbsp;&nbsp;●&nbsp;**Контроллеры**: **REST API** для пользователей, фильмов, жанров и рейтингов.  
 
-**-- Вывод всех полей записи под id=1**<br>
-SELECT *<br>
-FROM films<br>
-WHERE id_film = 1;
+⚙️ **Функционал**  
+**Пользователи**  
+&nbsp;&nbsp;●&nbsp;Создание нового пользователя.  
+&nbsp;&nbsp;●&nbsp;Обновление данных пользователя.  
+&nbsp;&nbsp;●&nbsp;Получение информации обо всех пользователях.  
+&nbsp;&nbsp;●&nbsp;Получение пользователя по id.  
+&nbsp;&nbsp;●&nbsp;Добавление в друзья.  
+&nbsp;&nbsp;●&nbsp;Удаление из друзей.  
+&nbsp;&nbsp;●&nbsp;Получение списка друзей пользователя.  
+&nbsp;&nbsp;●&nbsp;Получение списка общих друзей двух пользователей.  
+**Фильмы**  
+&nbsp;&nbsp;●&nbsp;Добавление нового фильма.  
+&nbsp;&nbsp;●&nbsp;Редактирование фильма.  
+&nbsp;&nbsp;●&nbsp;Получение информации обо всех фильмах.  
+&nbsp;&nbsp;●&nbsp;Получение фильма по id.  
+&nbsp;&nbsp;●&nbsp;Лайк фильма пользователем.  
+&nbsp;&nbsp;●&nbsp;Удаление лайка у фильма.  
+&nbsp;&nbsp;●&nbsp;Получение списка популярных фильмов (сортировка по количеству лайков, с ограничением по count).  
+**Жанры**  
+&nbsp;&nbsp;●&nbsp;Получение списка всех жанров.  
+&nbsp;&nbsp;●&nbsp;Получение жанра по id.  
+**Рейтинги MPA**  
+&nbsp;&nbsp;●&nbsp;Получение списка всех рейтингов.  
+&nbsp;&nbsp;●&nbsp;Получение рейтинга по id.  
 
-**-- Вывод записи и всех полей из таблицы Фильмы по определенному жанру**<br>
-SELECT f.*<br>
-FROM films f<br>
-JOIN film_genres fg ON f.id_film = fg.id_film<br>
-JOIN genres g ON fg.id_genre = g.id_genre<br>
-WHERE g.name = '*****';
+🛠️ **Стек технологий**  
+&nbsp;&nbsp;●&nbsp;Java  
+&nbsp;&nbsp;●&nbsp;Spring Framework (Boot, MVC)  
+&nbsp;&nbsp;●&nbsp;JDBC Template  
+&nbsp;&nbsp;●&nbsp;Spring Test  
+&nbsp;&nbsp;●&nbsp;H2  
+&nbsp;&nbsp;●&nbsp;Git  
+&nbsp;&nbsp;●&nbsp;Postman (тестирование API)  
+&nbsp;&nbsp;●&nbsp;REST  
+&nbsp;&nbsp;●&nbsp;Maven  
 
-**-- Вывод записей и всех полей из таблицы Фильмы по определенному рейтингу**<br>
-SELECT f.*<br>
-FROM films f<br>
-JOIN ratings r ON f.id_rating = r.id_rating<br>
-WHERE r.name = '*****';
-
-**-- Вывод количества лайков по названию фильма**<br>
-SELECT COUNT(*) AS like_count<br>
-FROM film_likes fl<br>
-JOIN films f ON fl.id_film = f.id_film<br>
-WHERE f.name = '*****';
-
-**-- Вывод записей и всех полей из таблицы Пользователи по названию фильма**<br>
-SELECT u.*<br>
-FROM users u<br>
-JOIN film_likes fl ON u.id_user = fl.id_user<br>
-JOIN films f ON fl.id_film = f.id_film<br>
-WHERE f.name = '*****';
-
-**-- Вывод записей и всех полей из таблицы Фильмы, которые пролайкал определенный пользователь**<br>
-SELECT f.*<br>
-FROM films f<br>
-JOIN film_likes fl ON f.id_film = fl.id_film<br>
-JOIN users u ON fl.id_user = u.id_user<br>
-WHERE u.login = '*****';
-
-**-- Вывод записей и всех полей из таблицы Фильмы + поле по количеству лайков с группировкой и сортировкой по убыванию и определенному количеству**<br>
-SELECT f.*, <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNT(fl.id_film) AS like_count<br>
-FROM films f<br>
-LEFT JOIN film_likes fl ON f.id_film = fl.id_film<br>
-GROUP BY f.id_film<br>
-ORDER BY like_count DESC<br>
-LIMIT ***;
